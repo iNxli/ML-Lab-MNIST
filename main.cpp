@@ -11,6 +11,7 @@
 #include <set>
 #include <valarray>
 #include <omp.h>
+#include <bitset>
 
 using namespace std;
 
@@ -45,9 +46,9 @@ void knn_solution(const valarray<valarray<int> > &test_pixel, const valarray<int
 #ifdef none
         cout << "NO. " << i << " is recognized as: " << re << 
             " and actually is: " << test_label[i] << endl;
-#endif
         if (re != test_label[i]) cout << "NO. " << i << " is recognized as: " << re << 
             " and actually is: " << test_label[i] << endl;
+#endif
         cnt += (re == test_label[i]);
     }
     cout << "The accuracy rating is: " << setiosflags(ios::fixed) << setprecision(6) << 1.0 * cnt / N << endl;
