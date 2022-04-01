@@ -92,5 +92,7 @@ int main() {
 #ifdef none
     bayes_solution(test_pixel, test_label);
 #endif
+
+
     return 0;
 }
