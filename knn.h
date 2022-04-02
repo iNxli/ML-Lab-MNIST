@@ -2,9 +2,9 @@
 struct KNN {
     valarray<valarray<int> > pixel, compressed_pixel;
     valarray<int> label;
-    const int K = 3;
-    const int N = 20;
-    const int H = 0;
+    const int K = 5;
+    const int N = 16;
+    const int H = 45;
     static const int MAX_N = 60000;
     static const int IMAGE_N = 28;
     bitset<IMAGE_N * IMAGE_N> bit[MAX_N];
@@ -12,9 +12,10 @@ struct KNN {
     KNN(string image_file, string label_file) {
         input_images(image_file, pixel);
         input_labels(label_file, label);
-        // compressed_pixel.resize(MAX_N);
+        compressed_pixel.resize(MAX_N);
     }
 
+    // compress by a convolution like method
     void compress(const valarray<int> &in_image, valarray<int> &out_image) {
         int window_size = IMAGE_N - N + 1;
         out_image.resize(N * N);
@@ -40,7 +41,7 @@ struct KNN {
     }
 
     void init() {
-        // for (int i = 0; i < MAX_N; ++i) compress(pixel[i], compressed_pixel[i]);
+        // for (int i = 0; i < MAX_N; ++i) compress(pixel[i], compressed_pixel[i]); // compress the pixel
         for (int i = 0; i < MAX_N; ++i) {
             for (int j = 0; j < IMAGE_N; ++j) {
                 for (int k = 0; k < IMAGE_N; ++k) {
@@ -50,23 +51,16 @@ struct KNN {
         }
     }
 
-    int recognize(const valarray<int> &new_image) {
+    int recognize(const valarray<int> &new_image) { // predict
         set<pii> q; 
         // valarray<int> new_com_image;
         bitset<IMAGE_N * IMAGE_N> new_bit;
         for (int i = 0; i < IMAGE_N; ++i) for (int j = 0; j < IMAGE_N; ++j) 
             new_bit[i * IMAGE_N + j] = (new_image[i * IMAGE_N + j] > H);
         // compress(new_image, new_com_image);
-#pragma omp parallel for
         for (int i = 0; i < MAX_N; ++i) {
             int dist = 0;
             dist = (bit[i]^new_bit).count();
-#ifdef none
-            for (int j = 0; j < N * N; ++j) {
-                // dist += (new_image[j] - pixel[i][j]) * (new_image[j] - pixel[i][j]);
-                dist += abs(new_com_image[j] - compressed_pixel[i][j]);
-             }
-#endif
             q.insert(make_pair(dist, i));
             while (q.size() > K) {
                 pii p = *(--q.end());

@@ -1,13 +1,13 @@
 struct SVM {
     const double C = 45;
     const int Catagories = 10;
-    vector<vector<int> > pixel;
-    vector<int> label;
-    vector<pair<double, vector<double> > > plain;
-    vector<vector<int> > idx;
-    int N = 500;
+    valarray<valarray<int> > pixel;
+    valarray<int> label;
+    valarray<pair<double, valarray<double> > > plain;
+    valarray<valarray<int> > idx;
+    int N = 5000;
 
-    SVM(string image_file, string label_file) {
+    SVM(string image_file, string label_file) { // initial function
         input_images(image_file, pixel);
         input_labels(label_file, label);
         plain.resize(Catagories * Catagories);
@@ -26,20 +26,19 @@ struct SVM {
         return a;
     }
 
-    double mul(const vector<int> &x, const vector<int> y) {
+    double mul(const valarray<int> &x, const valarray<int> y) {
         double res = 0;
         for (int i = 0; i < x.size(); ++i) res += x[i] * y[i];
         return res;
     }
 
     void SMO(int pos, int neg, double C) {
-        vector<vector<int> > x;
+        vector<valarray<int> > x;
         vector<int> y; 
         vector<double> alpha;
         for (int i = 0; i < N; ++i) {
             if (label[i] != pos && label[i] != neg) continue;
             alpha.push_back(0);
-            idx[pos * Catagories + neg].push_back(i);
             x.push_back(pixel[i]);
             y.push_back(((label[i] == pos) ? 1 : -1));
         }
@@ -91,7 +90,7 @@ struct SVM {
         }
     }
 
-    int recognize(int i, int j, const vector<int> &new_image) {
+    int recognize(int i, int j, const valarray<int> &new_image) { // predict
         double ans = 0;
         for (int k = 0; k < new_image.size(); ++k) {
             ans += new_image[k] * plain[i * Catagories + j].second[k];
@@ -100,30 +99,3 @@ struct SVM {
     }
 
 };
-
-
-void svm_solution(const vector<vector<int> > &test_pixel, const vector<int> &test_label) {
-    SVM svm(type[train] + image_file, type[train] + label_file);
-    svm.init();
-    vector<int> cnt(10, 0);
-    int N = 500, _cnt = 0;
-    for (int i = 0; i < N; ++i) {
-        cout << i << endl;
-        cnt.clear();
-        cnt.resize(10, 0);
-        for (int j = 0; j < 10; ++j) {
-            for (int k = j + 1; k < 10; ++k) {
-                int re = svm.recognize(j, k, test_pixel[i]);
-                ++cnt[re];
-            }
-        }
-        int ans, mx = 0;
-        for (int i = 0; i < 10; ++i) {
-            if (cnt[i] > mx) mx = cnt[i], ans = i;
-        }
-        cout << "NO. " << i << " is recognized as: " << ans << 
-            " and actually is: " << test_label[i] << endl;
-        _cnt += (ans == test_label[i]);
-    }
-    cout << "The accuracy rating is: " << setiosflags(ios::fixed) << setprecision(2) << 1.0 * _cnt / N << endl;
-}
